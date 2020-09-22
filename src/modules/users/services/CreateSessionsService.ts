@@ -1,67 +1,58 @@
-import { compare } from 'bcryptjs';
+import { injectable, inject } from 'tsyringe';
+
 import { sign } from 'jsonwebtoken';
-import { inject, injectable } from 'tsyringe';
 
 import AppError from '@shared/errors/AppError';
 
+import User from '@modules/users/infra/typeorm/entities/User';
 
-import User from '../infra/typeorm/entities/User';
 import authConfig from '@config/auth';
-import IUsersRepository from '../repositories/IUsersRepository';
+import IUserRepository from '../repositories/IUsersRepository';
+import IHashProvider from '../providers/hashProvider/models/IHashProvider';
 
-
-interface RequestDTO {
+interface IRequestDTO {
     email: string;
     password: string;
 }
 
-interface Response {
+interface IResponse {
     user: User;
     token: string;
 }
 
 @injectable()
-export default class CreateSessionsService {
-    
+class AuthenticateUserService {
     constructor(
         @inject('UsersRepository')
-        private userRepository: IUsersRepository
+        private usersRepository: IUserRepository,
+
+        @inject('HashProvider')
+        private hashProvider: IHashProvider,
     ) {}
 
-    public async execute({ email, password }: RequestDTO): Promise<Response> {
+    public async execute({ email, password }: IRequestDTO): Promise<IResponse> {
+        const user = await this.usersRepository.findByEmail(email);
 
-        
-        // check if email exists
-        const user = await this.userRepository.findByEmail(email);
-
-        if(!user){
-            throw new AppError('Invalid email/password!!!!', 401);
+        if (!user) {
+            throw new AppError('Incorrect email/password combination.', 401);
         }
 
-        // compare encrypted password
-        // user.password --> encrypted password
-        // password --> unencryptes password
+        const passwordMatched = await this.hashProvider.compareHash(
+            password,
+            user.password,
+        );
 
-        const comparePassword = await compare(password, user.password);
-
-        if(!comparePassword){
-            throw new AppError('Invalid email/password!!!!', 401);
+        if (!passwordMatched) {
+            throw new AppError('Incorrect email/password combination.', 401);
         }
-
-        // params of method sign
-
-        // 1 -> payload => information not secured
-        // 2 -> key => key on format of string
-        // 3 -> configurations 
 
         const token = sign( {}, authConfig.jwt.secret, {
             subject: user.id,
             expiresIn: '1d',
         } );
 
-        return {
-            user,
-            token
-        };
+        return { user, token };
     }
 }
+
+export default AuthenticateUserService;

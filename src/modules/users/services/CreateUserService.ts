@@ -1,12 +1,12 @@
-import { hash } from 'bcryptjs';
-import { inject, injectable } from 'tsyringe';
+import { injectable, inject } from 'tsyringe';
+
+import User from '@modules/users/infra/typeorm/entities/User';
 
 import AppError from '@shared/errors/AppError';
-import IUsersRepository from '../repositories/IUsersRepository';
+import IUserRepository from '../repositories/IUsersRepository';
+import IHashProvider from '../providers/hashProvider/models/IHashProvider';
 
-import User from '../infra/typeorm/entities/User';
-
-interface RequestDTO {
+interface IRequest {
     name: string;
     email: string;
     password: string;
@@ -14,28 +14,27 @@ interface RequestDTO {
 
 @injectable()
 class CreateUserService {
-
     constructor(
         @inject('UsersRepository')
-        private usersRepository: IUsersRepository
-    ){}
+        private usersRepository: IUserRepository,
 
-    public async execute({ name, email, password }: RequestDTO): Promise<User> {
+        @inject('HashProvider')
+        private hashProvider: IHashProvider,
+    ) {}
 
-        // check if email already in use
-        const checkedEmail = await this.usersRepository.findByEmail(email);
+    public async execute({ name, email, password }: IRequest): Promise<User> {
+        const checkUserExists = await this.usersRepository.findByEmail(email);
 
-        if(checkedEmail)
-            throw new AppError('Email address is already in use!!!', 401);
+        if (checkUserExists) {
+            throw new AppError('Email address already used.');
+        }
 
-        // create a criptPassword
-        const hashedPassoword = await hash(password, 8);
+        const hashedPassword = await this.hashProvider.generateHash(password);
 
-        // if elmail not exits, to create new user,
-        const user = this.usersRepository.create({
+        const user = await this.usersRepository.create({
             name,
             email,
-            password: hashedPassoword
+            password: hashedPassword,
         });
 
         return user;

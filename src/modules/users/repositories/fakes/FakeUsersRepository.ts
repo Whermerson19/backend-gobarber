@@ -27,7 +27,9 @@ class UsersRepository implements IUsersRepository {
         
         const user = new User();
 
-        Object.assign(user, { id: v4() }, userData)
+        Object.assign(user, { id: v4() }, userData);
+
+        this.users.push(user);
 
         return user;
     }
