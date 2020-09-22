@@ -26,7 +26,6 @@ class CreateAppointmentService {
 
     public async execute({ provider_id, date }: RequestDTO): Promise<Appointment> {
         
-        const appointmentsRepository = getCustomRepository(AppointmentRepository);
         const appointmentDate = startOfHour(date);
 
         const findAppintmentSameDate = await this.appointmentsRepository.findByDate(appointmentDate);
@@ -34,7 +33,7 @@ class CreateAppointmentService {
         if(findAppintmentSameDate)
             throw new AppError('This appointment is already booked!!!');
 
-        const appointment = await appointmentsRepository.create({
+        const appointment = await this.appointmentsRepository.create({
             provider_id,
             date: appointmentDate
         });

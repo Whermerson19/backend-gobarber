@@ -27,8 +27,6 @@ export default class UpdateAvatarService {
         const user = await this.usersRepository.findById(user_id);
 
         if(!user){
-            console.log(user);
-            console.log(user_id)
             throw new AppError('Only authenticated users can change avatar!!!');
         }
 
