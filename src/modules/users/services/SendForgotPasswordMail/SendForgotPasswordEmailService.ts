@@ -31,6 +31,6 @@ export default class SendForgotPasswordEmailService {
 
         await this.userTokenRepository.generate(checkUserExists.id);
 
-        this.mailProvider.sendMail(email, 'email de recuperação de senha')
+        await this.mailProvider.sendMail(email, 'email de recuperação de senha')
     }
 }

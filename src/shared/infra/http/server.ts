@@ -8,11 +8,13 @@ import 'express-async-errors';
 
 import uploadConfig from '@config/upload';
 
+import '@modules/users/providers';
+import '@shared/container';
+
 import AppError from '@shared/errors/AppError';
 
 import routes from './routes';
 
-import '@shared/container';
 
 // Importando a conexão do banco
 import '@shared/infra/typeorm';
