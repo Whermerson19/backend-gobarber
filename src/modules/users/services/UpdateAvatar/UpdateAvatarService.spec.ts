@@ -1,8 +1,8 @@
 import AppError from '@shared/errors/AppError';
 
 import FakeStorageProvider from '@shared/container/providers/StorageProvider/fakes/FakeStorageProvider';
-import FakeUserRepository from '../repositories/fakes/FakeUsersRepository';
-import UpdateUserAvatarService from './UpdateAvatarService';
+import FakeUserRepository from '../../repositories/fakes/FakeUsersRepository';
+import UpdateUserAvatarService from './UpdateAvatarService'; 
 
 describe('UpdateUserAvatar', () => {
     it('should be able to update avatar', async () => {

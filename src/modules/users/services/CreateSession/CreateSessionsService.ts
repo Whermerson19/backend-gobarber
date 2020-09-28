@@ -7,8 +7,8 @@ import AppError from '@shared/errors/AppError';
 import User from '@modules/users/infra/typeorm/entities/User';
 
 import authConfig from '@config/auth';
-import IUserRepository from '../repositories/IUsersRepository';
-import IHashProvider from '../providers/hashProvider/models/IHashProvider';
+import IUserRepository from '../../repositories/IUsersRepository';
+import IHashProvider from '../../providers/hashProvider/models/IHashProvider';
 
 interface IRequestDTO {
     email: string;
@@ -21,7 +21,7 @@ interface IResponse {
 }
 
 @injectable()
-class AuthenticateUserService {
+class CreateSessionsService {
     constructor(
         @inject('UsersRepository')
         private usersRepository: IUserRepository,
@@ -46,13 +46,13 @@ class AuthenticateUserService {
             throw new AppError('Incorrect email/password combination.', 401);
         }
 
-        const token = sign( {}, authConfig.jwt.secret, {
+        const token = sign({}, authConfig.jwt.secret, {
             subject: user.id,
             expiresIn: '1d',
-        } );
+        });
 
         return { user, token };
     }
 }
 
-export default AuthenticateUserService;
+export default CreateSessionsService;

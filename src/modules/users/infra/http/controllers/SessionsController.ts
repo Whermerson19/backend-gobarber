@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { container } from 'tsyringe';
 
-import CreateSessionsService from '@modules/users/services/CreateSessionsService';
+import CreateSessionsService from '@modules/users/services/CreateSession/CreateSessionsService';
 
 
 export default class UsersController {
@@ -15,7 +15,7 @@ export default class UsersController {
             password,
         });
     
-        delete user.password;
+        // delete user.password; 
     
         return response.json({ user, token });
     }
