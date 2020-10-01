@@ -32,8 +32,10 @@ export default class SendForgotPasswordEmailService {
 
         const user = await this.usersRepository.findById(userToken.user_id);
 
-        if(!user)
+        if(!user){
+            console.log('caiu aqui');
             throw new AppError('User does not exists');
+        }
             
         const tokenCreatedAt = userToken.created_at;
         const differenceTime = differenceInHours(Date.now(), tokenCreatedAt)
