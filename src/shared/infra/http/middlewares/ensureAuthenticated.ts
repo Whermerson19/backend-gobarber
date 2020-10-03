@@ -27,11 +27,11 @@ export default function(request: Request, response: Response, next: NextFunction
 
     try {
         const verifyToken = verify(token, authConfig.jwt.secret);
-        // const { sub } = verifyToken as tokenPayload;
+        const { sub } = verifyToken as tokenPayload;
 
-        // request.user = {
-        //     id: sub,
-        // }
+        request.user = {
+            id: sub,
+        }
 
         return next();
     }catch {
