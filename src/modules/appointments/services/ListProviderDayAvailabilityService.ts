@@ -31,9 +31,11 @@ export default class ListProviderDayAvailabilityService{
             year
         });
 
+        const startHour = 8;
+
         const eachHourArray = Array.from(
             { length: 10 },
-            (value, index) => index + 8 
+            (value, index) => index + startHour 
         );
 
         const availability = eachHourArray.map(hour => {
