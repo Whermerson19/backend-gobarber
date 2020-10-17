@@ -3,7 +3,7 @@ import { inject, injectable } from 'tsyringe';
 import IAppointmentsRepository from '../repositories/IAppointmentsRepository';
 import Appointments from '../infra/typeorm/entities/Appointment';
 import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
-import { cache } from '@hapi/joi';
+import { classToClass } from 'class-transformer';
 
 interface Request {
     provider_id: string;
@@ -26,14 +26,25 @@ export default class ListProviderAppointmentsService {
 
     public async execute({ provider_id, day, month, year }: Request): Promise<Appointments[]> {
 
-        const appointments = await this.appointmentsRepository.findAllInDayFromProvider({
-            provider_id,
-            day,
-            month,
-            year
-        });
+        const cacheKey = `provider-appointments:${provider_id}:${year}-${month}-${day}`;
 
-
+        let appointments = await this.cacheProvider.recover<Appointments[]>(
+          cacheKey,
+        );
+    
+        if (!appointments) {
+          appointments = await this.appointmentsRepository.findAllInDayFromProvider(
+            {
+              provider_id,
+              year,
+              month,
+              day,
+            },
+          );
+    
+          await this.cacheProvider.save(cacheKey, classToClass(appointments));
+        }
+    
         return appointments;
     }
 }

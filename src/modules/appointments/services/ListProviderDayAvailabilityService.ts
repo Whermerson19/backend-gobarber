@@ -24,33 +24,37 @@ export default class ListProviderDayAvailabilityService{
 
     public async execute({ user_id, day, month, year }: Request): Promise<Response> {
 
-        const appointments = await this.appointmentsRepository.findAllInDayFromProvider({ 
-            provider_id: user_id, 
-            day, 
-            month, 
-            year
-        });
-
-        const startHour = 8;
-
-        const eachHourArray = Array.from(
+        const appointments = await this.appointmentsRepository.findAllInDayFromProvider(
+            {
+              provider_id: user_id,
+              year,
+              month,
+              day,
+            },
+          );
+      
+          const hourStart = 8;
+      
+          const eachHourArray = Array.from(
             { length: 10 },
-            (value, index) => index + startHour 
-        );
-
-        const availability = eachHourArray.map(hour => {
-
-            const checkedAppointmentInHour = appointments.find(appointment => getHours(appointment.date) === hour);
-
-            const currentDate = new Date(Date.now());
-            const appointmentDate = new Date(year, month - 1, day, hour);
-
+            (_, index) => index + hourStart,
+          );
+      
+          const currentDate = new Date(Date.now());
+      
+          const availability = eachHourArray.map(hour => {
+            const hasAppointmentInHour = appointments.find(
+              appointment => getHours(appointment.date) === hour,
+            );
+      
+            const compareDate = new Date(year, month - 1, day, hour);
+      
             return {
-                hour,
-                available: !checkedAppointmentInHour && isAfter(appointmentDate, currentDate),
-            }
-        })
-
-       return availability;
+              hour,
+              available: !hasAppointmentInHour && isAfter(compareDate, currentDate),
+            };
+          });
+      
+          return availability;
     }
 }

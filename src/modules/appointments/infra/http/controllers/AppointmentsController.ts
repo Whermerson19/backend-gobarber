@@ -4,6 +4,7 @@ import { parseISO } from 'date-fns';
 import { container } from 'tsyringe';
 
 import CreateAppointmentService from '@modules/appointments/services/CreateAppointmentService';
+import { classToClass } from 'class-transformer';
 
 
 export default class AppointmentsController {
@@ -22,6 +23,6 @@ export default class AppointmentsController {
             date: parsedDate,
         })
     
-        return response.json(appointment);
+        return response.json(classToClass(appointment));
     }
 }

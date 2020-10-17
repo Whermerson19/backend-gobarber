@@ -33,7 +33,10 @@ class CreateAppointmentService {
         
         const appointmentDate = startOfHour(date);
 
-        const findAppintmentSameDate = await this.appointmentsRepository.findByDate(appointmentDate);
+        const findAppintmentSameDate = await this.appointmentsRepository.findByDate(
+            appointmentDate,
+            provider_id
+        );
 
         if(user_id === provider_id)
             throw new AppError('You can not to create an appointment with yourself');
